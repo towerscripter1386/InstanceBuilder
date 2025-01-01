@@ -1,4 +1,4 @@
-# InstanceBuilder
+# HierarchyBuilder
 React alike instance hierarchy builder
 
 
