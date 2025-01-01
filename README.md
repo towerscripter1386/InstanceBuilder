@@ -66,4 +66,30 @@ buildInstance{ Name = "FinalTest";
     end;
   };
 }
+
+-- complex example
+local events = {
+	Type = "Folder";
+
+	Name = "EventFolder";
+	Parent = game:GetService("ReplicatedStorage");
+
+	{ Name = "CharacterOption";
+		Parent = workspace;
+		_count = 12;
+		Type = "BindableFunction";
+		OnInvoke = function(Type)
+			return false, "No option is here yet!"
+		end;
+		{ Type = "Configuration";
+			_count = 12;
+			_init = function(self:Configuration,count:number)
+				print("run")
+				self.Name = tostring(count)
+			end;
+		}
+	};
+}
+
+buildInstance(events)
 ```
