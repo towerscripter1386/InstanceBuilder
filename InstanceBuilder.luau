@@ -54,8 +54,7 @@ local function buildInstance(instance:{
 			task.defer(instance._init,object,1)
 		end
 		local t:typeof(instance)
-		-- despite being a single function. It has so much weird fixes that I belive react
-		-- has multiple modules for a reason
+
 		if instance._count >= 2 then
 			t = table.clone(instance)
 			t._count = 0
