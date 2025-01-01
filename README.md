@@ -5,7 +5,7 @@ React alike instance hierarchy builder
 ## Example usage:
 
 ```luau
-local buildInstance = require(InstanceBuilder)
+local buildInstance = require(HierarchyBuilder)
 
 -- 1 instance example
 buildInstance{ Name = "TestPart";
