@@ -14,7 +14,7 @@ buildInstance{ Name = "TestPart";
   Position = Vector3.new(12,0,10);
 }
 
--- hierarachy example
+-- hierarchy example
 buildInstance{ Name = "HierarchyTest";
   Type = "Folder";
   Parent = workspace;
