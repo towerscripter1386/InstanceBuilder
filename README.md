@@ -1,7 +1,7 @@
 # HierarchyBuilder
 React alike instance hierarchy builder
 
-
+You can have see more info in the [Guide](https://github.com/towerscripter1386/InstanceBuilder/blob/main/Guide.md) file
 ## Example usage:
 
 ```luau
