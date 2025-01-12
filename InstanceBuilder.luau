@@ -1,11 +1,3 @@
-local function parentCheck(instance:{Type:string|Instance,Parent:Instance?,_init:(self:Instance,id:number?) -> ()?,_count:number?;[any]:any},obj:Instance,returnT)
-	if instance.Parent then
-		obj.Parent = instance.Parent
-	else
-		table.insert(returnT,obj)
-	end
-end
-
 local blockedEntries = {
 	"_count";
 	"_init";
@@ -54,16 +46,21 @@ local function buildInstance(instance:{
 			task.defer(instance._init,object,1)
 		end
 		local t:typeof(instance)
-
 		if instance._count >= 2 then
 			t = table.clone(instance)
-			t._count = 0
+			t._count = nil::any -- typechecker shudup
+			t._init = nil
 		end
-		for i = 2,instance._count do
+		for i = 2, instance._count do
 			local localObject = buildInstance(t)
-			parentCheck(instance,localObject,returnT)
+			if instance.Parent then
+				localObject.Parent = instance.Parent
+			else
+				table.insert(returnT,localObject)
+			end
 			if instance._init then
 				task.defer(instance._init,localObject,i)
+				print(localObject,i)
 			end
 		end	
 	else
