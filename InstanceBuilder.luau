@@ -15,9 +15,9 @@ local function buildInstance(instance:{
 	Parent:Instance?,
 	_init:(self:Instance,id:number?) -> ()?,
 	_count:number?;
-	[any]:any
+	[keyof<Instance>]:index<Instance,keyof<Instance>>
 	}) : ...Instance
-
+	
 	local object:Instance
 	if typeof(instance.Type) == "Instance" then
 		object = instance.Type:Clone()
@@ -48,7 +48,7 @@ local function buildInstance(instance:{
 		local t:typeof(instance)
 		if instance._count >= 2 then
 			t = table.clone(instance)
-			t._count = nil::any -- typechecker shudup
+			t._count = nil
 			t._init = nil
 		end
 		for i = 2, instance._count do
