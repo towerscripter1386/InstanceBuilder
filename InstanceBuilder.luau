@@ -1,71 +1,107 @@
+--!optimize 2
+--!strict
+
+--Hacks
+local Get:(self:Instance,key:keyof<Instance>|string) -> any xpcall(function() return script[nil] end,function() local f = debug.info(2,"f") if f == error then Get = function(self,key) return self[key] end else Get = f end end)
+local Set:(self:Instance,key:keyof<Instance>|string,value:any) -> () xpcall(function() script[nil] = nil end,function() local f = debug.info(2,"f") if f == error then Set = function(self,key,value) self[key] = value end else Set = f end end)
+local Clone = script.Clone
+
+--Variables
 local blockedEntries = {
 	"_count";
 	"_init";
+	"_base";
 	"Parent";
 	"Type";
 }
+
+--Types
+export type InstanceEntry = {
+	Type:string|Instance|InstanceEntry;
+	Parent:Instance?;
+	_base:{[number|string]:InstanceEntry|any}?;
+	_init:(self:Instance,id:number?) -> ()?;
+	_count:number?;
+	[number|string]:InstanceEntry|any;
+}
+
+local buildInstance:(instance:InstanceEntry) -> ...Instance
+
+local function loopAndBuild(t:{[number|string]:InstanceEntry|any;},o:Instance,check:boolean)
+	for i,v in t do
+		if type(i) == "string" then
+			if check then
+				if table.find(blockedEntries,i) then continue end
+			end
+			Set(o,i,v)
+		else
+			--local arg = table.pack(buildInstance(v))
+			for j,k in {buildInstance(v)} do
+				if not Get(k,"Parent") then Set(k,"Parent",o) end
+			end
+		end
+	end
+end
+
 --[[
 	Builds instances of hierarchy, it is meant to be used in scripts for convenience.
 	The way it works is similar to react
 	
 	<strong>instance</strong> : instance hierarchy of any creatable type 
 ]]
-local function buildInstance(instance:{
-	Type:string|Instance,
-	Parent:Instance?,
-	_init:(self:Instance,id:number?) -> ()?,
-	_count:number?;
-	[keyof<Instance>]:index<Instance,keyof<Instance>>
-	}) : ...Instance
-	
+buildInstance = function(instance:InstanceEntry) : ...Instance
 	local object:Instance
-	if typeof(instance.Type) == "Instance" then
-		object = instance.Type:Clone()
+
+	local Type = instance.Type
+	local Count = instance._count
+	local Parent = instance.Parent
+	local Init = instance._init
+	local Base = instance._base
+
+	local tType = typeof(Type)
+	if tType == "Instance" then
+		object = Clone(Type::Instance)
+	elseif tType == "string" then
+		object = Instance.new(Type::string)
 	else
-		object = Instance.new(instance.Type)
+		object = buildInstance(Type::InstanceEntry)
+		object.Parent = nil
 	end
 
-	for i,v in instance do
-		if typeof(i) == "string" then
-			if table.find(blockedEntries,i) then continue end
-			object[i] = v
-		else
-			local arg = table.pack(buildInstance(v))
-			for i = 1,arg.n do
-				if not arg[i].Parent then arg[i].Parent = object end
-			end
-		end
+	if Base then
+		loopAndBuild(Base,object,false)
 	end
 
-	if instance.Parent then object.Parent = instance.Parent end
+	loopAndBuild(instance,object,true)
+
+	if instance.Parent then Set(object,"Parent",instance.Parent) end
 
 	local returnT = {}
 
-	if instance._count then
-		if instance._init then
-			task.defer(instance._init,object,1)
+	if Count then
+		if Init then
+			task.defer(Init,object,1)
 		end
 		local t:typeof(instance)
-		if instance._count >= 2 then
+		if Count >= 2 then
 			t = table.clone(instance)
-			t._count = nil
+			t._count = nil::any
 			t._init = nil
 		end
-		for i = 2, instance._count do
+		for i = 2, Count do
 			local localObject = buildInstance(t)
-			if instance.Parent then
-				localObject.Parent = instance.Parent
+			if Parent then
+				Set(localObject,"Parent",Parent)
 			else
 				table.insert(returnT,localObject)
 			end
-			if instance._init then
-				task.defer(instance._init,localObject,i)
-				print(localObject,i)
+			if Init then
+				task.defer(Init,localObject,i)
 			end
 		end	
 	else
-		if instance._init then
-			task.defer(instance._init,object)
+		if Init then
+			task.defer(Init,object)
 		end
 	end
 
