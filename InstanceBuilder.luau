@@ -64,7 +64,9 @@ buildInstance = function(instance:InstanceEntry) : ...Instance
 	elseif tType == "string" then
 		object = Instance.new(Type::string)
 	else
-		object = buildInstance(Type::InstanceEntry)
+		local t = table.clone(Type)::InstanceEntry
+		t._count = nil
+		object = buildInstance(t)
 		object.Parent = nil
 	end
 
