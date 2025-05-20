@@ -1,5 +1,3 @@
-Copied from the dev forum post
-
 # Structure
 
 all tables in the hierarchy should have a `Type` index:
@@ -27,9 +25,15 @@ buildInstance{ Type = "Folder";
    };
 }
 ```
-you can also put an actual instance instead of a type string in case you are building from a pre-existing instance:
+You can also put an actual instance instead of a type string in case you are building from a pre-existing instance:
 ```luau
 local example = { Type = workspace:FindFirstChildOfClass("BasePart")
+
+}
+```
+Or even another hierarchy, please do consider that `_count` does not work in the Type's hierarchy for obvious reasons. It is also advised to not set Parent of the Type hierarchy because it can cause issues for replication:
+```luau
+local example = { Type = {Type = "Folder"}
 
 }
 ```
@@ -59,8 +63,28 @@ If instead you put `Type` as an instance, it will override the properties you sp
 > **Note:** 
 Hierarchy will always build their properties and children first before setting their own parent to a specified instance if `Parent` index is specified
 
+# `_base`
+You can specify base properties/objects you would want to write before other properties:
+```luau
+local Style:HierarchyBuilder.InstanceEntry = { -- allows you to partly typecheck outside of buildInstance function
+	Color = Color3.new();
+	{ Type = "Folder";
+		_count = 2;
+		_init = print;
+	}
+}
+
+local example = { Type = "Part";
+	Anchored = true;
+	Parent = workspace;
+	_base = Style;
+	_count = 10;
+}
+```
+This is useful for styling Ui or parts
+
 # `_init` 
-you can specify a function to be run after the whole hierarchy is created:
+You can specify a function to be run after the whole hierarchy is created:
 ```luau
 local example = { Name = "Events";
    Type = "Folder"
@@ -77,10 +101,10 @@ local example = { Name = "Events";
    };
 }
 ```
-It will run in deferred mode. Which is on the next frame.
+It will run in deferred mode. Which is at the end of the current execution point.
 
 # `_count`
-you can specify the amount of individual instances to create through `_count`:
+You can specify the amount of individual instances to create through `_count`:
 ```luau
 local example = { Name = "PartStorage";
    Type = "Folder";
@@ -91,7 +115,7 @@ local example = { Name = "PartStorage";
    };
 }
 ```
-you can also combine it with the `_init` to have some custom behavior for generating properties:
+You can also combine it with the `_init` to have some custom behavior for generating properties:
 ```luau
 local example = { Name = "PartStorage";
    Type = "Folder";
