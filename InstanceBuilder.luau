@@ -1,17 +1,17 @@
 --[[
-   Copyright 2025 Arsenij Ivashenko
+	Copyright 2025 Arsenij Ivashenko
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+		http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
 ]]
 
 --!optimize 2
@@ -35,29 +35,11 @@ local blockedEntries = {
 export type InstanceEntry = {
 	Type:string|Instance|InstanceEntry;
 	Parent:Instance?;
-	_base:{[number|string]:InstanceEntry|any}?;
+	_base:InstanceEntry?;
 	_init:(self:Instance,id:number?) -> ()?;
 	_count:number?;
 	[number|string]:InstanceEntry|any;
 }
-
-local buildInstance:(instance:InstanceEntry) -> ...Instance
-
-local function loopAndBuild(t:{[number|string]:InstanceEntry|any;},o:Instance,check:boolean)
-	for i,v in t do
-		if type(i) == "string" then
-			if check then
-				if table.find(blockedEntries,i) then continue end
-			end
-			Set(o,i,v)
-		else
-			--local arg = table.pack(buildInstance(v))
-			for j,k in {buildInstance(v)} do
-				if not Get(k,"Parent") then Set(k,"Parent",o) end
-			end
-		end
-	end
-end
 
 --[[
 	Builds instances of hierarchy, it is meant to be used in scripts for convenience.
@@ -65,34 +47,41 @@ end
 	
 	<strong>instance</strong> : instance hierarchy of any creatable type 
 ]]
-buildInstance = function(instance:InstanceEntry) : ...Instance
-	local object:Instance
-
+local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Instance
 	local Type = instance.Type
 	local Count = instance._count
 	local Parent = instance.Parent
 	local Init = instance._init
 	local Base = instance._base
 
-	local tType = typeof(Type)
-	if tType == "Instance" then
-		object = Clone(Type::Instance)
-	elseif tType == "string" then
-		object = Instance.new(Type::string)
-	else
-		local t = table.clone(Type)::InstanceEntry
-		t._count = nil
-		object = buildInstance(t)
-		object.Parent = nil
+	if not object then
+		local tType = typeof(Type)
+		if tType == "Instance" then
+			object = Clone(Type::Instance)
+		elseif tType == "string" then
+			object = Instance.new(Type::string)
+		else
+			local t = table.clone(Type)::InstanceEntry
+			t._count = nil
+			object = buildInstance(t)
+			object.Parent = nil
+		end
 	end
 
 	if Base then
-		loopAndBuild(Base,object,false)
+		buildInstance(Base,object)
 	end
 
-	loopAndBuild(instance,object,true)
-
-	if instance.Parent then Set(object,"Parent",instance.Parent) end
+	for i,v in instance do
+		if type(i) == "string" then
+			if table.find(blockedEntries,i) then continue end
+			Set(object,i,v)
+		else
+			for j,k in {buildInstance(v)} do
+				if not Get(k,"Parent") then Set(k,"Parent",object) end
+			end
+		end
+	end
 
 	local returnT = {}
 
@@ -122,6 +111,8 @@ buildInstance = function(instance:InstanceEntry) : ...Instance
 			task.defer(Init,object)
 		end
 	end
+	
+	if Parent then Set(object,"Parent",Parent) end
 
 	return object,table.unpack(returnT)
 end
