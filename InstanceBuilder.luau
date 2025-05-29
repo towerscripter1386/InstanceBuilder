@@ -67,7 +67,7 @@ local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Insta
 			local t = table.clone(Type)::InstanceEntry
 			t._count = nil
 			object = buildInstance(t)
-			object.Parent = nil
+			Set(object,"Parent",nil)
 		end
 	end
 
