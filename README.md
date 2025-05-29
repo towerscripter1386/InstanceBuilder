@@ -1,3 +1,5 @@
+<img src="docs/HierarchyBuilderLogo.png" alt="Hierarchy Builder" width="512" height="512">
+
 # HierarchyBuilder
 React alike instance hierarchy builder
 
