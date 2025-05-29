@@ -18,8 +18,8 @@
 --!strict
 
 --Hacks
-local Get:(self:Instance,key:keyof<Instance>|string) -> any xpcall(function() return script[nil] end,function() local f = debug.info(2,"f") if f == error then Get = function(self,key) return self[key] end else Get = f end end)
-local Set:(self:Instance,key:keyof<Instance>|string,value:any) -> () xpcall(function() script[nil] = nil end,function() local f = debug.info(2,"f") if f == error then Set = function(self,key,value) self[key] = value end else Set = f end end)
+local Get:(self:Instance,key:keyof<Instance>|string) -> any xpcall(function() return game[nil] end,function() local f = debug.info(2,"f") if f == error then Get = function(self,key) return self[key] end else Get = f end end)
+local Set:(self:Instance,key:keyof<Instance>|string,value:any) -> () xpcall(function() game[nil] = nil end,function() local f = debug.info(2,"f") if f == error then Set = function(self,key,value) self[key] = value end else Set = f end end)
 local Clone = script.Clone
 
 --Variables
@@ -27,6 +27,7 @@ local blockedEntries = {
 	"_count";
 	"_init";
 	"_base";
+	"_exec";
 	"Parent";
 	"Type";
 }
@@ -38,6 +39,7 @@ export type InstanceEntry = {
 	_base:InstanceEntry?;
 	_init:(self:Instance,id:number?) -> ()?;
 	_count:number?;
+	_exec:{[string]:{{any}}}?;
 	[number|string]:InstanceEntry|any;
 }
 
@@ -53,6 +55,7 @@ local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Insta
 	local Parent = instance.Parent
 	local Init = instance._init
 	local Base = instance._base
+	local Exec = instance._exec
 
 	if not object then
 		local tType = typeof(Type)
@@ -79,6 +82,15 @@ local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Insta
 		else
 			for j,k in {buildInstance(v)} do
 				if not Get(k,"Parent") then Set(k,"Parent",object) end
+			end
+		end
+	end
+	
+	if Exec then
+		for fName,execArgs in Exec do
+			local func = object[fName]::(self:Instance,...any) -> ...any
+			for i,argT in execArgs do
+				func(object,table.unpack(argT))
 			end
 		end
 	end
@@ -111,7 +123,7 @@ local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Insta
 			task.defer(Init,object)
 		end
 	end
-	
+
 	if Parent then Set(object,"Parent",Parent) end
 
 	return object,table.unpack(returnT)
