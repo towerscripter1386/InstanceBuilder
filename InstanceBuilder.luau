@@ -35,14 +35,17 @@ local blockedEntries = {
 --Types
 export type BaseEntry = {
 	Parent:Instance?;
-	_base:BaseEntry;
+	_base:BaseEntry?;
 	_init:(self:Instance,id:number?) -> ()?;
 	_exec:{[string]:{{any}}}?;
 	[number|string]:InstanceEntry|any;
 }
 
-export type InstanceEntry = BaseEntry&{
-	Type:string|Instance|BaseEntry;
+export type TypeEntry = BaseEntry&{
+	Type:string|Instance|TypeEntry;
+}
+
+export type InstanceEntry = TypeEntry&{
 	_count:number?;
 }
 
@@ -52,7 +55,7 @@ export type InstanceEntry = BaseEntry&{
 	
 	<strong>instance</strong> : instance hierarchy of any creatable type 
 ]]
-local function buildInstance(instance:InstanceEntry|BaseEntry,object:Instance?) : ...Instance
+local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:Instance?) : ...Instance
 	local Type = instance.Type
 	local Count = instance._count
 	local Parent = instance.Parent
@@ -67,10 +70,7 @@ local function buildInstance(instance:InstanceEntry|BaseEntry,object:Instance?) 
 		elseif tType == "string" then
 			object = Instance.new(Type::string)
 		else
-			local t = table.clone(Type)::InstanceEntry
-			t._count = nil
-			object = buildInstance(t)
-			Set(object,"Parent",nil)
+			object = buildInstance(Type::TypeEntry)
 		end
 	end
 
@@ -88,7 +88,7 @@ local function buildInstance(instance:InstanceEntry|BaseEntry,object:Instance?) 
 			end
 		end
 	end
-	
+
 	if Exec then
 		for fName,execArgs in Exec do
 			local func = Get(object,fName)::(self:Instance,...any) -> ...any
