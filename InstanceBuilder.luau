@@ -33,14 +33,17 @@ local blockedEntries = {
 }
 
 --Types
-export type InstanceEntry = {
-	Type:string|Instance|InstanceEntry;
+export type BaseEntry = {
 	Parent:Instance?;
-	_base:InstanceEntry?;
+	_base:BaseEntry;
 	_init:(self:Instance,id:number?) -> ()?;
-	_count:number?;
 	_exec:{[string]:{{any}}}?;
 	[number|string]:InstanceEntry|any;
+}
+
+export type InstanceEntry = BaseEntry&{
+	Type:string|Instance|BaseEntry;
+	_count:number?;
 }
 
 --[[
@@ -49,7 +52,7 @@ export type InstanceEntry = {
 	
 	<strong>instance</strong> : instance hierarchy of any creatable type 
 ]]
-local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Instance
+local function buildInstance(instance:InstanceEntry|BaseEntry,object:Instance?) : ...Instance
 	local Type = instance.Type
 	local Count = instance._count
 	local Parent = instance.Parent
@@ -88,7 +91,7 @@ local function buildInstance(instance:InstanceEntry,object:Instance?) : ...Insta
 	
 	if Exec then
 		for fName,execArgs in Exec do
-			local func = object[fName]::(self:Instance,...any) -> ...any
+			local func = Get(object,fName)::(self:Instance,...any) -> ...any
 			for i,argT in execArgs do
 				func(object,table.unpack(argT))
 			end
