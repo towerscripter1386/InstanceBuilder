@@ -2,7 +2,7 @@
 
 ## Type
 ```luau
-Type:string|Instance|TypeEntry;
+Type:string|Instance|TypeEntry
 ```
 
 
