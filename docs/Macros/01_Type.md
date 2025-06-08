@@ -27,4 +27,4 @@ local t3:HierarchyBuilder.InstanceEntry = {
 `Type` is the most important macro in hierarchy builder. It allows you to create a base instance without having to attach to an existing instance. 
 Type can accept a `string` similar to `Instance.new`, an instance to clone or another hierarchy. <br> <br>
 
-Instances are cloned trough the usage of `Clone`. So be careful with child instances of the object you provide. Hierarchies provided to the `Type` or `_base` can't have a `_count` macro for an obvious reason.
+Instances are cloned trough the usage of `Clone`. So be careful with the child instances of the object you provide. Hierarchies provided to the `Type` or `_base` can't have a `_count` macro for an obvious reason.
