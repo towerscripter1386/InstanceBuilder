@@ -2,7 +2,7 @@
 
 ## Type
 ```luau
-_init:(self:Instance,id:number) -> ()
+_init:((self:Instance,id:number) -> ())?
 ```
 
 ## Syntax
