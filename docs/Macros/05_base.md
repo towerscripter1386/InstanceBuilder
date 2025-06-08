@@ -19,7 +19,7 @@ local t1:HierarchyBuilder.InstanceEntry = {
 ```
 
 ## Info
-`_base` allows to have complex property inheritance. Besides being able to overrride properties, it also supports certain macros like: `_init`, `Parent`, `_exec` or even nested `_base`. The proprties inside of the `_base` will be written to an instance before the properties desribed in top hierarchy will be applied, example below: <br>
+`_base` allows to have complex property inheritance. Besides being able to overrride properties, it also supports certain macros like: `_init`, `Parent`, `_exec` or even nested `_base`'s. The properties inside of the `_base` hierarchy will be written to the instance before the ones describing the `_base` will, example below: <br>
 ```luau
 buildInstance{ -- part will be of green color
   Type = "Part";
@@ -31,4 +31,4 @@ buildInstance{ -- part will be of green color
 }
 ```
 
-Common mistake people make when using this macro is to put `Type` inside of the `_base` hierarchy. It is incorrect and if you want class inheritance you should instead use the 3rd variation of type which allows you to specify another hierarchy.
+Common mistake people make when using this macro is to use `Type`. This is an invalid syntax and if you want to have class inheritance you should instead use the 3rd variation of the `Type`, which allows you to specify another hierarchy with `Type`.
