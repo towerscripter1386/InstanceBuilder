@@ -22,4 +22,4 @@ local t1:HierarchyBuilder.InstanceEntry = {
 
 Second argument provides index of the cloned instance via `_count`.<br><br>
 
-In older versions of the hierarchy builder(before `1.3`) `_init`'s `id` would only be present if `_count` was specified. Now even without specifying `_count`, `id` will be present
+In older versions of the hierarchy builder(before `1.3`) `_init`'s `id` would only be present if `_count` was specified.
