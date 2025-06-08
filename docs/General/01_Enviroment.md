@@ -5,7 +5,7 @@ Hierarchy builder is not picky about it's enviroment. It can be used anywhere fr
 **Note:**
 > This documentation will only cover the Roblox Studio setup. If you work in any other enviroment like `Rojo`, you will have to set it up yourself using the Roblox Studio example.
 
-1. Get the source code of hierarchy builder either from releases or directly from the repository
+1. Get the source code of the hierarchy builder either from releases or directly from the repository
 2. Put the source code into a module script and call it however you want, we will call it `HierarchyBuilder`
 
 Done! Simple as that is only the usage of the recursive builder itself:
