@@ -1,5 +1,5 @@
 # Migration note
-Hierarchy builder got a lot more complex since it's first release. And contains outdated information. Altrough it is still useful as a new commer guide.
+Hierarchy builder got a lot more complex since it's first release. And this file contains outdated information. Altrough it is still useful as a new commer guide.
 
 Original info:
 
