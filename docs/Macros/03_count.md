@@ -15,6 +15,20 @@ local t1:HierarchyBuilder.InstanceEntry = {
 ```
 
 ## Info
-`_count` allows to create a set of instances without hardcoding it inside of the code. It can operate under any hierarchy and allows to compress the code if used right. <br><br>
+`_count` allows to create a set of instances without hardcoding it inside of the code. It can only operate inside of the `InstanceEntry` hierarchy and allows you to compress the code. <br><br>
 
-It also affects `_init`, providing it with a second argument telling the functions it's instace index derived from `_count` loop.
+With the help of `_init` you can have some procedural capabilities, example below:
+```luau
+buildInstance{
+  Type = "Part";
+  
+  Parent = workspace;
+  Size = Vector3.one;
+
+  _count = 100;
+  _init = function(self,id)
+    self.Position = Vector.new(id%10,0,math.floor(id*0.1))
+    self.Name = tostring(id)
+  end;
+}
+```
