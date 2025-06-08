@@ -1,3 +1,8 @@
+# Migration note
+Hierarchy builder got a lot more complex since it's first release. And contains outdated information. Altrough it is still useful as a new commer guide.
+
+Original info:
+
 # Structure
 
 all tables in the hierarchy should have a `Type` index:
