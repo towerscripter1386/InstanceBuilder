@@ -10,3 +10,5 @@ In this category you will be able to read info about every macro and their uses.
 - `_count`
 - `_base`
 - `_count`
+- `_attach`
+- `_event`
