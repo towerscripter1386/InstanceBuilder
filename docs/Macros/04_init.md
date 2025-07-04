@@ -18,7 +18,7 @@ local t1:HierarchyBuilder.InstanceEntry = {
 ```
 
 ## Info
-`_init` is one of the 2(second being _exec) macros which allow created instances to have a reactive behavior. Function provided to the `_init` is called trough `task.defer`. So beware of the added performance overhead of creating threads<br><br>
+`_init` is one of the 2(second being _exec) macros which allow you to have reactive capabilities on created instances. Function provided to the `_init` is called trough the `task.defer`. So beware of the added performance overhead of creating threads<br><br>
 
 Second argument provides index of the cloned instance via `_count`.<br><br>
 
