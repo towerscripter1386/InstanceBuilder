@@ -18,31 +18,62 @@
 --!strict
 
 --Hacks
-local Get:(self:Instance,key:keyof<Instance>|string) -> any xpcall(function() return game[nil] end,function() local f = debug.info(2,"f") if f == error then Get = function(self,key) return self[key] end else Get = f end end)
+local NGet = function(self,key) return self[key] end
+local Get:(self:Instance,key:keyof<Instance>|string) -> any xpcall(function() return game[nil] end,function() local f = debug.info(2,"f") if f == error then Get = NGet else Get = f end end)
 local Set:(self:Instance,key:keyof<Instance>|string,value:any) -> () xpcall(function() game[nil] = nil end,function() local f = debug.info(2,"f") if f == error then Set = function(self,key,value) self[key] = value end else Set = f end end)
+local RBXEGet:(self:RBXScriptSignal,key:keyof<RBXScriptSignal>) -> ((self:RBXScriptSignal,func:(any) -> ()) -> RBXScriptConnection) xpcall(function() return game.Loaded[nil] end,function() local f = debug.info(2,"f") if f == error then RBXEGet = NGet else RBXEGet = f end end)
+
 local Clone = script.Clone
 
 --Variables
-local blockedEntries = {
-	"_count";
-	"_init";
-	"_base";
-	"_exec";
-	"Parent";
-	"Type";
+local blocked_entries:{[string]:boolean} = {
+	_count = true;
+	_init = true;
+	_base = true;
+	_exec = true;
+	_event = true;
+	_attach = true;
+	
+	Parent = true;
+	Type = true;
 }
+
+local function connect(event:RBXScriptSignal,events:{(any) -> ()}?,what:keyof<RBXScriptSignal>)
+	if not events then return end
+	
+	local func = RBXEGet(event,what) 
+	for j,Func in events do
+		func(event,Func)
+	end
+end
 
 --Types
 export type BaseEntry = {
 	Parent:Instance?;
+	
 	_base:BaseEntry?;
 	_init:(self:Instance,id:number?) -> ()?;
 	_exec:{[string]:{{any}}}?;
+	_event:{[string]:{
+		Connect:{
+			(any) -> ()
+		}?;
+		
+		ConnectParallel:{
+			(any) -> ()
+		}?;
+		
+		Once:{
+			(any) -> ()
+		}?
+	;}}?;
+	
 	[number|string]:InstanceEntry|any;
 }
 
 export type TypeEntry = BaseEntry&{
 	Type:string|Instance|TypeEntry;
+	_attach:{[Instance]:TypeEntry|InstanceEntry}?;
 }
 
 export type InstanceEntry = TypeEntry&{
@@ -62,6 +93,8 @@ local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:I
 	local Init = instance._init
 	local Base = instance._base
 	local Exec = instance._exec
+	local Event = instance._event
+	local Attach = instance._attach
 
 	if not object then
 		local tType = typeof(Type)
@@ -73,6 +106,10 @@ local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:I
 			object = buildInstance(Type::TypeEntry)
 		end
 	end
+	
+	if Attach then
+		(Attach::any)[object] = instance
+	end
 
 	if Base then
 		buildInstance(Base,object)
@@ -80,7 +117,7 @@ local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:I
 
 	for i,v in instance do
 		if type(i) == "string" then
-			if table.find(blockedEntries,i) then continue end
+			if blocked_entries[i] then continue end
 			Set(object,i,v)
 		else
 			for j,k in {buildInstance(v)} do
@@ -98,8 +135,20 @@ local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:I
 		end
 	end
 
+	if Event then
+		for i,Events in Event do
+			local event = Get(object,i)::RBXScriptSignal
+			
+			connect(event,Events.Connect,"Connect")
+			connect(event,Events.ConnectParallel,"ConnectParallel")
+			connect(event,Events.Once,"Once")
+		end
+	end
+
 	local returnT = {}
 
+	-- TODO:
+	-- Code for _count macro is horrible, it needs to be refactored
 	if Count then
 		if Init then
 			task.defer(Init,object,1)
@@ -123,7 +172,7 @@ local function buildInstance(instance:InstanceEntry|BaseEntry|TypeEntry,object:I
 		end	
 	else
 		if Init then
-			task.defer(Init,object)
+			task.defer(Init,object,1)
 		end
 	end
 
