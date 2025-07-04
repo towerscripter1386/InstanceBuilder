@@ -15,9 +15,9 @@ local t1:HierarchyBuilder.InstanceEntry = {
 ```
 
 ## Info
-`_count` allows to create a set of instances without hardcoding it inside of the code. It can only operate inside of the `InstanceEntry` hierarchy and allows you to compress the code. <br><br>
+`_count` allows you to create a set of instances without hardcoding it inside of the `_init`. It can only operate inside of the `InstanceEntry` and allows you to compress the code. <br><br>
 
-With the help of `_init` you can have some procedural capabilities, example below:
+Also with the help of `_init` you are able to have some procedural capabilities, example below:
 ```luau
 buildInstance{
   Type = "Part";
