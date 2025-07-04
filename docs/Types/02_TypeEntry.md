@@ -4,6 +4,7 @@
 ```luau
 export type TypeEntry = BaseEntry&{
 	Type:string|Instance|TypeEntry;
+	_attach:{[Instance]:TypeEntry|InstanceEntry}?;
 }
 ```
 
