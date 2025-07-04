@@ -26,4 +26,6 @@ print(attach[workspace.MySuperSpecialPart])
 ## Info
 `_attach` was added in order to try to resolve a big flaw of hierarchy builder. It being static makes certain implementations inefficient or extremely inconvenient. 
 With this macro you can tell the hierarchy builder to attach the entry to the part it is built, which allows you to cross-communicate between script hierarchies without
-involving custom solutions. 
+involving custom solutions. <br><br>
+
+`_attach` is only allowed where `TypeEntry` is allowed.
