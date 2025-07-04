@@ -4,9 +4,24 @@
 ```luau
 export type BaseEntry = {
 	Parent:Instance?;
+	
 	_base:BaseEntry?;
-	_init:(self:Instance,id:number?) -> ()?;
+	_init:(self:Instance,id:number) -> ()?;
 	_exec:{[string]:{{any}}}?;
+	_event:{[string]:{
+		Connect:{
+			(any) -> ()
+		}?;
+		
+		ConnectParallel:{
+			(any) -> ()
+		}?;
+		
+		Once:{
+			(any) -> ()
+		}?
+	;}}?;
+	
 	[number|string]:InstanceEntry|any;
 }
 ```
