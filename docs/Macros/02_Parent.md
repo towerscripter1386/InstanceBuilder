@@ -14,4 +14,4 @@ local t1:HierarchyBuilder.InstanceEntry = {
 ```
 
 ## Info
-Despite the name, `Parent` is considered a macro in hierarchy builder. It is explained by the fact that in build loop it deliberately ignores it until all of the properties are set and all of the children have been created. This allows hierarchy builder to operate on replicated services without the risk of network overhead
+Despite the name, `Parent` is considered a macro in hierarchy builder. It is explained by the fact that hierarchy builder deliberately ignores `Parent` until all of the properties are set and all of the child instances have been created. This allows hierarchy builder to operate on replicated services without the risk of network overhead.
